@@ -1,97 +1,187 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# AI Günlük Asistanım 🤖📱
 
-# Getting Started
+> **Duygularınızı anlayan, size rehberlik eden yapay zeka destekli günlük asistan uygulaması**
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+[![React Native](https://img.shields.io/badge/React%20Native-0.82.1-blue.svg)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 
-## Step 1: Start Metro
+## 📖 Proje Hakkında
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+**AI Günlük Asistanım**, kullanıcıların günlük duygularını ve düşüncelerini paylaşabileceği, yapay zeka destekli bir mobil uygulamadır. Uygulama, kullanıcının yazdığı metinleri analiz ederek duygu durumunu tespit eder, kişiselleştirilmiş öneriler sunar ve istatistikler ile kullanıcının ruh halini takip etmesine yardımcı olur.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+Bu proje, **React Native + AI Stajyer Projesi** kapsamında geliştirilmiştir.
 
-```sh
-# Using npm
-npm start
+## ✨ Özellikler
 
-# OR using Yarn
-yarn start
+### 🎯 Temel Özellikler
+- **Duygu Analizi**: Pozitif, negatif ve nötr duygu tespiti
+- **Çoklu Emotion Detection**: 8 farklı duygu türü (mutlu, üzgün, endişeli, sakin, motive, yorgun, heyecanlı, stresli)
+- **Motivasyon Skoru**: 0-100 arası motivasyon puanı hesaplama
+- **Kişiselleştirilmiş Öneriler**: Duygu durumuna göre özel öneriler
+- **Offline Destek**: İnternet olmadan geçmiş kayıtlara erişim
+- **Haftalık İstatistikler**: Duygu trendleri ve içgörüler
+
+### 🏗️ Teknik Özellikler
+- Clean Architecture pattern
+- TypeScript ile tam tip güvenliği
+- Redux Toolkit ile state management
+- Custom hooks ile business logic ayrımı
+- AsyncStorage ile lokal veri saklama
+- Comprehensive error handling
+
+## 🛠️ Teknoloji Stack'i
+
+| Kategori | Teknoloji | Versiyon |
+|----------|-----------|----------|
+| **Framework** | React Native | 0.82.1 |
+| **Dil** | TypeScript | 5.8.3 |
+| **State Management** | Redux Toolkit | 2.5.0 |
+| **UI Kütüphanesi** | React Native Paper | 5.12.7 |
+| **Navigation** | React Navigation | 7.x |
+| **Storage** | AsyncStorage | 2.1.0 |
+| **AI Integration** | Hugging Face API | - |
+| **HTTP Client** | Axios | 1.7.9 |
+
+## 📦 Kurulum
+
+### Gereksinimler
+
+- Node.js >= 20.x
+- npm
+- React Native development environment ([Setup Guide](https://reactnative.dev/docs/environment-setup))
+- Android Studio (Android için) veya Xcode (iOS için)
+
+### Kurulum Adımları
+
+1. **Repository'yi klonlayın**
+```bash
+git clone https://github.com/huriyeeym/ai-daily-assistant.git
+cd ai-daily-assistant
 ```
 
-## Step 2: Build and run your app
+2. **Dependencies'leri yükleyin**
+```bash
+npm install
+```
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+3. **Uygulamayı başlatın**
 
-### Android
-
-```sh
-# Using npm
+**Android:**
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
+**iOS:** (sadece macOS)
+```bash
+cd ios
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+cd ..
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🤖 AI Entegrasyonu
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Hugging Face API
 
-## Step 3: Modify your app
+Uygulama, sentiment analysis için **Hugging Face Inference API** kullanmaktadır.
 
-Now that you have successfully run the app, let's make changes!
+**Model**: `distilbert-base-uncased-finetuned-sst-2-english`
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+### API Token (Opsiyonel)
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+API token olmadan çalışır, ancak rate limiting olabilir. Daha iyi performans için:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+1. [Hugging Face](https://huggingface.co/) hesabı oluşturun
+2. [Access Tokens](https://huggingface.co/settings/tokens) sayfasından token alın
+3. `.env.example` dosyasını `.env` olarak kopyalayın
+4. Token'ınızı ekleyin
 
-## Congratulations! :tada:
+```bash
+HUGGING_FACE_API_TOKEN=your_token_here
+```
 
-You've successfully run and modified your React Native App. :partying_face:
+### AI Analiz Süreci
 
-### Now what?
+1. **Sentiment Analysis**: Hugging Face API ile pozitif/negatif analiz
+2. **Emotion Detection**: Keyword-based Türkçe duygu tespiti
+3. **Motivation Score**: Sentiment skoruna göre hesaplama
+4. **Summary & Suggestions**: Duygu durumuna göre özelleştirilmiş mesajlar
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## 📱 Proje Yapısı
 
-# Troubleshooting
+```
+src/
+├── api/              # API client ve endpoints
+├── components/       # Reusable components
+├── config/           # Uygulama konfigürasyonu
+├── constants/        # Sabitler
+├── hooks/            # Custom React hooks
+├── models/           # TypeScript interfaces
+├── navigation/       # Navigation yapılandırması
+├── screens/          # Screen componentleri
+│   ├── HomeScreen/
+│   ├── HistoryScreen/
+│   └── StatisticsScreen/
+├── services/         # Business logic servisler
+├── store/            # Redux store
+├── theme/            # Theme konfigürasyonu
+└── utils/            # Utility fonksiyonları
+```
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+Detaylı mimari dokümantasyonu: [ARCHITECTURE.md](ARCHITECTURE.md)
 
-# Learn More
+## 🤝 AI Araç Kullanımı
 
-To learn more about React Native, take a look at the following resources:
+### Claude Code ile Geliştirme
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Bu proje geliştirilirken **Claude Code** (Anthropic'in AI kod asistanı) kullanılmıştır.
+
+#### Kullanım Alanları:
+- Proje yapısı ve clean architecture
+- TypeScript modelleri ve interfaces
+- Redux Toolkit setup
+- Service layer implementasyonu
+- Custom hooks (useAnalysis, useEntries, useTheme)
+- UI componentleri ve styling
+- Dokümantasyon
+
+#### İnsan Katkısı:
+- Proje gereksinimleri ve özellik tanımlamaları
+- UX/UI tasarım kararları
+- Türkçe içerik ve mesajlar
+- Kod review ve optimizasyonlar
+- Test ve debugging
+
+### Şeffaflık
+
+Projenin yaklaşık **%70-80'i** AI yardımıyla yazılmıştır. Ancak tüm kod:
+- İncelendi ve anlaşıldı
+- Test edildi ve doğrulandı
+- Best practices'e göre optimize edildi
+- Projenin gereksinimlerine göre özelleştirildi
+
+## 📝 Yapılacaklar
+
+- [ ] Dark mode desteği implementasyonu
+- [ ] Grafik görselleştirmeleri (ChartKit)
+- [ ] Export/Import functionality
+- [ ] Push notification desteği
+- [ ] Unit ve integration testleri
+
+## 👨‍💻 Geliştirici
+
+GitHub: [@huriyeeym](https://github.com/huriyeeym)
+
+## 🙏 Teşekkürler
+
+- [Hugging Face](https://huggingface.co/) - AI Model API
+- [React Native Paper](https://callstack.github.io/react-native-paper/) - UI Components
+- [Redux Toolkit](https://redux-toolkit.js.org/) - State Management
+- [React Navigation](https://reactnavigation.org/) - Navigation
+
+---
+
+**Not**: Bu proje "React Native + AI Stajyer Projesi" kapsamında geliştirilmiştir ve modern mobil uygulama geliştirme pratiklerini göstermektedir.
+
+⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!
