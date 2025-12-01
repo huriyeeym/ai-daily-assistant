@@ -88,5 +88,11 @@ yarn-error.log
 *.swo
 *~
 
+# Claude Code
+.claude/
+
+# Ruby bundle
+.bundle/
+
 # Mac
 .DS_Store
