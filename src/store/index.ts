@@ -1,0 +1,17 @@
+import { configureStore } from '@reduxjs/toolkit';
+import entriesReducer from './slices/entriesSlice';
+import themeReducer from './slices/themeSlice';
+
+export const store = configureStore({
+  reducer: {
+    entries: entriesReducer,
+    theme: themeReducer,
+  },
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
