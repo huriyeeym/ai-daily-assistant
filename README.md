@@ -108,6 +108,25 @@ HUGGING_FACE_API_TOKEN=your_token_here
 3. **Motivation Score**: Sentiment skoruna göre hesaplama
 4. **Summary & Suggestions**: Duygu durumuna göre özelleştirilmiş mesajlar
 
+## 🧪 Test Ortamı
+
+Bu proje aşağıdaki ortamda geliştirilmiş ve test edilmiştir:
+
+| Bileşen | Versiyon/Detay |
+|---------|----------------|
+| **İşletim Sistemi** | Windows 11 (64-bit) |
+| **Node.js** | v22.14.0 |
+| **npm** | 10.9.2 |
+| **React Native** | 0.82.1 |
+| **Android Studio** | 2025.2.1.8 |
+| **TypeScript** | 5.8.3 |
+| **Geliştirme Aracı** | VS Code + Claude Code |
+
+### Platform Notları
+
+- ✅ **Android**: Tam destek (Android Studio emulator ile test edilmiştir)
+- ⚠️ **iOS**: Kod hazır ancak build macOS/Xcode gerektirir (Windows ortamında test edilememiştir)
+
 ## 📱 Proje Yapısı
 
 ```
