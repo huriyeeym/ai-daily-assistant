@@ -1,0 +1,519 @@
+import React, { useState, useCallback, useMemo } from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  TextInput,
+  Button,
+  Card,
+  Text,
+  ActivityIndicator,
+  Chip,
+  Divider,
+  IconButton,
+} from 'react-native-paper';
+import { useAnalysis, useEntries, useToast } from '../../hooks';
+import { AnalysisResult } from '../../models';
+import { getSentimentColor, getSentimentEmoji, getEmotionEmoji, getMotivationLevel } from '../../utils';
+import { APP_CONFIG } from '../../config/app.config';
+import Toast from '../../components/common/Toast';
+import { AnimatedBot, VoiceWave } from '../../components/animations';
+import GradientBackground from '../../components/common/GradientBackground';
+import { GRADIENT_COLORS, THEME_COLORS } from '../../constants';
+
+const { width } = Dimensions.get('window');
+
+const HomeScreen = () => {
+  const [text, setText] = useState('');
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  const { analyze, loading, error } = useAnalysis();
+  const { saveEntry } = useEntries();
+  const { toast, hideToast, showSuccess, showError, showWarning } = useToast();
+
+  const handleAnalyze = useCallback(async () => {
+    if (text.trim().length < APP_CONFIG.MIN_ENTRY_LENGTH) {
+      showError(`Please enter at least ${APP_CONFIG.MIN_ENTRY_LENGTH} characters.`);
+      return;
+    }
+
+    const result = await analyze(text);
+    if (result) {
+      setAnalysisResult(result);
+      // Check if it's a fallback analysis (error case)
+      if (result.summary.includes('Offline') || result.summary.includes('offline')) {
+        showWarning('Analysis completed in offline mode.');
+      }
+    } else if (error) {
+      showError(error);
+    }
+  }, [text, analyze, error, showError, showWarning]);
+
+  const handleSave = useCallback(async () => {
+    if (!analysisResult) return;
+
+    const entry = {
+      id: Date.now().toString(),
+      text,
+      analysis: analysisResult,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    try {
+      await saveEntry(entry);
+      setText('');
+      setAnalysisResult(null);
+      showSuccess('Entry saved successfully! 📝');
+    } catch (err) {
+      console.error('Error saving entry:', err);
+      showError('An error occurred while saving the entry.');
+    }
+  }, [analysisResult, text, saveEntry, showSuccess, showError]);
+
+  const sentimentColor = useMemo(
+    () =>
+      analysisResult
+        ? getSentimentColor(analysisResult.sentiment.type)
+        : '#E0E0E0',
+    [analysisResult],
+  );
+
+  const isValidInput = useMemo(
+    () => text.trim().length >= APP_CONFIG.MIN_ENTRY_LENGTH,
+    [text],
+  );
+
+  return (
+    <View style={styles.container}>
+      <GradientBackground
+        colors={GRADIENT_COLORS.primary}
+        style={styles.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+        >
+          <Toast
+            visible={toast.visible}
+            message={toast.message}
+            type={toast.type}
+            onDismiss={hideToast}
+          />
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Header Section */}
+            <View style={styles.header}>
+              <Text variant="headlineMedium" style={styles.greeting}>
+                Hello,
+              </Text>
+              <Text variant="displaySmall" style={styles.mainTitle}>
+                Ask me anything
+              </Text>
+            </View>
+
+            {/* Bot or Wave Animation */}
+            {!analysisResult && (
+              <View style={styles.animationContainer}>
+                {loading ? (
+                  <VoiceWave isActive={loading} size={width * 0.6} />
+                ) : (
+                  <AnimatedBot size={width * 0.55} />
+                )}
+              </View>
+            )}
+
+            {/* Input Section */}
+            {!analysisResult && (
+              <View style={styles.inputSection}>
+                <View style={styles.inputCard}>
+                  <TextInput
+                    mode="outlined"
+                    placeholder="Share your thoughts..."
+                    placeholderTextColor={THEME_COLORS.textSecondary}
+                    value={text}
+                    onChangeText={setText}
+                    multiline
+                    numberOfLines={4}
+                    maxLength={APP_CONFIG.MAX_ENTRY_LENGTH}
+                    style={styles.input}
+                    outlineStyle={styles.inputOutline}
+                    textColor={THEME_COLORS.text}
+                    disabled={loading}
+                  />
+                  <View style={styles.inputFooter}>
+                    <Text variant="bodySmall" style={styles.charCount}>
+                      {text.length} / {APP_CONFIG.MAX_ENTRY_LENGTH}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={handleAnalyze}
+                      disabled={loading || !isValidInput}
+                      style={[
+                        styles.sendButton,
+                        (!isValidInput || loading) && styles.sendButtonDisabled,
+                      ]}
+                    >
+                      <GradientBackground
+                        colors={
+                          isValidInput && !loading
+                            ? GRADIENT_COLORS.secondary
+                            : ['#cccccc', '#999999']
+                        }
+                        style={styles.sendButtonGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <IconButton
+                          icon={loading ? 'dots-horizontal' : 'send'}
+                          iconColor={THEME_COLORS.textLight}
+                          size={24}
+                        />
+                      </GradientBackground>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <View style={styles.errorContainer}>
+                <Card style={styles.errorCard}>
+                  <Card.Content>
+                    <Text variant="titleMedium" style={styles.errorText}>
+                      ❌ Error
+                    </Text>
+                    <Text style={styles.errorMessage}>{error}</Text>
+                  </Card.Content>
+                </Card>
+              </View>
+            )}
+
+            {/* Analysis Result */}
+            {analysisResult && !loading && (
+              <View style={styles.resultSection}>
+                <Card style={styles.resultCard}>
+                  <Card.Content>
+                    {/* Sentiment */}
+                    <View style={styles.sentimentContainer}>
+                      <View style={styles.sentimentHeader}>
+                        <Text variant="displayMedium">
+                          {getSentimentEmoji(analysisResult.sentiment.type)}
+                        </Text>
+                        <View style={styles.sentimentInfo}>
+                          <Text variant="headlineSmall" style={{ color: sentimentColor }}>
+                            {analysisResult.sentiment.label}
+                          </Text>
+                          <Text variant="bodySmall" style={styles.confidence}>
+                            {Math.round(analysisResult.sentiment.score * 100)}% confidence
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <Divider style={styles.divider} />
+
+                    {/* Emotions */}
+                    <View style={styles.section}>
+                      <Text variant="titleMedium" style={styles.sectionTitle}>
+                        Emotions Detected
+                      </Text>
+                      <View style={styles.emotionsContainer}>
+                        {analysisResult.emotions.map((emotion, index) => (
+                          <Chip
+                            key={index}
+                            style={styles.emotionChip}
+                            textStyle={styles.emotionChipText}
+                          >
+                            {getEmotionEmoji(emotion.type)} {emotion.type}
+                          </Chip>
+                        ))}
+                      </View>
+                    </View>
+
+                    <Divider style={styles.divider} />
+
+                    {/* Motivation Score */}
+                    <View style={styles.section}>
+                      <Text variant="titleMedium" style={styles.sectionTitle}>
+                        Motivation Level
+                      </Text>
+                      <View style={styles.motivationContainer}>
+                        <Text variant="displayMedium" style={styles.motivationScore}>
+                          {Math.round(analysisResult.motivationScore)}
+                        </Text>
+                        <Text variant="titleSmall" style={styles.motivationLevel}>
+                          {getMotivationLevel(analysisResult.motivationScore)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Divider style={styles.divider} />
+
+                    {/* Summary */}
+                    <View style={styles.section}>
+                      <Text variant="titleMedium" style={styles.sectionTitle}>
+                        Summary
+                      </Text>
+                      <Text style={styles.summaryText}>{analysisResult.summary}</Text>
+                    </View>
+
+                    <Divider style={styles.divider} />
+
+                    {/* Suggestion */}
+                    <View style={styles.section}>
+                      <Text variant="titleMedium" style={styles.sectionTitle}>
+                        Suggestion
+                      </Text>
+                      <Text style={styles.suggestionText}>
+                        💡 {analysisResult.suggestion}
+                      </Text>
+                    </View>
+
+                    {/* Action Buttons */}
+                    <View style={styles.actionButtons}>
+                      <Button
+                        mode="contained"
+                        onPress={handleSave}
+                        style={styles.saveButton}
+                        labelStyle={styles.saveButtonLabel}
+                        icon="content-save"
+                      >
+                        Save Entry
+                      </Button>
+                      <Button
+                        mode="outlined"
+                        onPress={() => {
+                          setText('');
+                          setAnalysisResult(null);
+                        }}
+                        style={styles.newButton}
+                        labelStyle={styles.newButtonLabel}
+                        icon="plus"
+                      >
+                        New Analysis
+                      </Button>
+                    </View>
+                  </Card.Content>
+                </Card>
+              </View>
+            )}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </GradientBackground>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 24,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  greeting: {
+    color: THEME_COLORS.textLight,
+    fontWeight: '400',
+    opacity: 0.9,
+  },
+  mainTitle: {
+    color: THEME_COLORS.textLight,
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+  animationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  inputSection: {
+    paddingHorizontal: 24,
+    marginTop: 20,
+  },
+  inputCard: {
+    backgroundColor: THEME_COLORS.cardLight,
+    borderRadius: 24,
+    padding: 16,
+    shadowColor: THEME_COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  input: {
+    backgroundColor: 'transparent',
+    fontSize: 16,
+  },
+  inputOutline: {
+    borderRadius: 16,
+    borderColor: 'transparent',
+  },
+  inputFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  charCount: {
+    color: THEME_COLORS.textSecondary,
+    opacity: 0.7,
+  },
+  sendButton: {
+    borderRadius: 30,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
+  sendButtonGradient: {
+    borderRadius: 30,
+  },
+  errorContainer: {
+    paddingHorizontal: 24,
+    marginTop: 16,
+  },
+  errorCard: {
+    backgroundColor: '#ffe6e6',
+    borderRadius: 16,
+  },
+  errorText: {
+    color: THEME_COLORS.error,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  errorMessage: {
+    color: THEME_COLORS.error,
+  },
+  resultSection: {
+    paddingHorizontal: 24,
+    marginTop: 24,
+  },
+  resultCard: {
+    backgroundColor: THEME_COLORS.cardLight,
+    borderRadius: 24,
+    shadowColor: THEME_COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  sentimentContainer: {
+    marginBottom: 8,
+  },
+  sentimentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sentimentInfo: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  confidence: {
+    color: THEME_COLORS.textSecondary,
+    marginTop: 4,
+  },
+  divider: {
+    marginVertical: 16,
+    backgroundColor: THEME_COLORS.surface,
+  },
+  section: {
+    marginVertical: 4,
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    color: THEME_COLORS.primary,
+    marginBottom: 12,
+  },
+  emotionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  emotionChip: {
+    backgroundColor: THEME_COLORS.surface,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  emotionChipText: {
+    fontSize: 13,
+  },
+  motivationContainer: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    backgroundColor: THEME_COLORS.surface,
+    borderRadius: 16,
+  },
+  motivationScore: {
+    fontWeight: 'bold',
+    color: THEME_COLORS.primary,
+  },
+  motivationLevel: {
+    color: THEME_COLORS.textSecondary,
+    marginTop: 8,
+  },
+  summaryText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: THEME_COLORS.text,
+  },
+  suggestionText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: THEME_COLORS.text,
+  },
+  actionButtons: {
+    marginTop: 24,
+    gap: 12,
+  },
+  saveButton: {
+    borderRadius: 16,
+    backgroundColor: THEME_COLORS.primary,
+  },
+  saveButtonLabel: {
+    fontSize: 16,
+    paddingVertical: 6,
+  },
+  newButton: {
+    borderRadius: 16,
+    borderColor: THEME_COLORS.primary,
+    borderWidth: 2,
+  },
+  newButtonLabel: {
+    color: THEME_COLORS.primary,
+    fontSize: 16,
+    paddingVertical: 6,
+  },
+});
+
+export default HomeScreen;

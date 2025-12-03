@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Card, Text, Chip } from 'react-native-paper';
+import GradientBackground from '../../components/common/GradientBackground';
 import { LineChart, PieChart, BarChart } from 'react-native-chart-kit';
 import { useEntries } from '../../hooks';
 import { getSentimentColor, getSentimentEmoji, getWeekNumber, formatDate } from '../../utils';
 import { SentimentType } from '../../models';
+import { GRADIENT_COLORS, THEME_COLORS } from '../../constants';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -83,20 +85,47 @@ const StatisticsScreen = () => {
 
   if (!stats) {
     return (
-      <View style={styles.empty}>
-        <Text variant="headlineMedium">📊</Text>
-        <Text variant="titleLarge" style={styles.emptyText}>
-          No data yet
-        </Text>
-        <Text variant="bodyMedium" style={styles.emptySubtext}>
-          Create diary entries to see statistics
-        </Text>
-      </View>
+      <GradientBackground
+        colors={GRADIENT_COLORS.primary}
+        style={styles.container}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.empty}>
+          <Text variant="displaySmall" style={styles.emptyEmoji}>
+            📊
+          </Text>
+          <Text variant="headlineMedium" style={styles.emptyText}>
+            No data yet
+          </Text>
+          <Text variant="bodyLarge" style={styles.emptySubtext}>
+            Create diary entries to see statistics
+          </Text>
+        </View>
+      </GradientBackground>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <GradientBackground
+      colors={GRADIENT_COLORS.primary}
+      style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <View style={styles.header}>
+        <Text variant="headlineLarge" style={styles.headerTitle}>
+          Statistics
+        </Text>
+        <Text variant="bodyMedium" style={styles.headerSubtitle}>
+          Insights from your journey
+        </Text>
+      </View>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
       <Card style={styles.card}>
         <Card.Content>
           <Text variant="titleLarge" style={styles.cardTitle}>
@@ -331,7 +360,8 @@ const StatisticsScreen = () => {
           </Text>
         </Card.Content>
       </Card>
-    </ScrollView>
+      </ScrollView>
+    </GradientBackground>
   );
 };
 
@@ -339,8 +369,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  headerTitle: {
+    color: THEME_COLORS.textLight,
+    fontWeight: 'bold',
+  },
+  headerSubtitle: {
+    color: THEME_COLORS.textLight,
+    opacity: 0.9,
+    marginTop: 4,
+  },
   content: {
     padding: 16,
+    paddingBottom: 24,
   },
   empty: {
     flex: 1,
@@ -348,20 +396,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 32,
   },
+  emptyEmoji: {
+    fontSize: 80,
+    marginBottom: 24,
+  },
   emptyText: {
-    marginTop: 16,
-    marginBottom: 8,
+    color: THEME_COLORS.textLight,
+    fontWeight: 'bold',
+    marginBottom: 12,
   },
   emptySubtext: {
+    color: THEME_COLORS.textLight,
     textAlign: 'center',
-    opacity: 0.6,
+    opacity: 0.9,
   },
   card: {
     marginBottom: 16,
+    borderRadius: 20,
+    backgroundColor: THEME_COLORS.cardLight,
+    shadowColor: THEME_COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   cardTitle: {
     marginBottom: 16,
     fontWeight: 'bold',
+    color: THEME_COLORS.primary,
   },
   statRow: {
     flexDirection: 'row',
@@ -371,11 +433,15 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontWeight: 'bold',
+    color: THEME_COLORS.primary,
   },
   dominantSentiment: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
+    padding: 16,
+    backgroundColor: THEME_COLORS.surface,
+    borderRadius: 16,
   },
   dominantInfo: {
     marginLeft: 16,
@@ -390,9 +456,11 @@ const styles = StyleSheet.create({
   },
   insight: {
     marginBottom: 12,
-    padding: 12,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
+    padding: 16,
+    backgroundColor: THEME_COLORS.surface,
+    borderRadius: 12,
+    fontSize: 15,
+    lineHeight: 22,
   },
   chartContainer: {
     alignItems: 'center',

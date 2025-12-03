@@ -16,7 +16,7 @@ function App() {
         <ReduxProvider store={store}>
           <SafeAreaProvider>
             <PaperProvider>
-              <StatusBar barStyle="dark-content" />
+              <StatusBar barStyle="light-content" backgroundColor="#667eea" />
               <RootNavigator />
             </PaperProvider>
           </SafeAreaProvider>

@@ -50,12 +50,12 @@ class AIService {
         timestamp: Date.now(),
       };
     } catch (error) {
-      console.error('AI Analysis Error:', error);
       // FALLBACK: Use keyword-based analysis if API fails completely
+      console.log('Using fallback keyword analysis:', error instanceof Error ? error.message : 'API unavailable');
       const keywordSentiment = useTurkishModel
         ? this.analyzeTurkishSentiment(request.text)
         : this.analyzeEnglishSentiment(request.text);
-      
+
       const emotions = this.detectEmotions(request.text, detectedLanguage);
       const summary = this.generateSummary(keywordSentiment.type, detectedLanguage);
       const suggestion = this.generateSuggestion(keywordSentiment.type, detectedLanguage);
@@ -68,7 +68,7 @@ class AIService {
           label: keywordSentiment.label,
         },
         emotions,
-        summary: summary + (useTurkishModel ? ' (Çevrimdışı mod)' : ' (Offline mode)'),
+        summary,
         suggestion,
         motivationScore,
         timestamp: Date.now(),
