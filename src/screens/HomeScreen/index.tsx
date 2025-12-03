@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -15,10 +15,11 @@ import {
   Chip,
   Divider,
 } from 'react-native-paper';
-import { useAnalysis, useEntries } from '../../hooks';
+import { useAnalysis, useEntries, useToast } from '../../hooks';
 import { AnalysisResult } from '../../models';
 import { getSentimentColor, getSentimentEmoji, getEmotionEmoji, getMotivationLevel } from '../../utils';
 import { APP_CONFIG } from '../../config/app.config';
+import Toast from '../../components/common/Toast';
 
 const HomeScreen = () => {
   const [text, setText] = useState('');
@@ -26,19 +27,27 @@ const HomeScreen = () => {
 
   const { analyze, loading, error } = useAnalysis();
   const { saveEntry } = useEntries();
+  const { toast, hideToast, showSuccess, showError, showWarning } = useToast();
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = useCallback(async () => {
     if (text.trim().length < APP_CONFIG.MIN_ENTRY_LENGTH) {
+      showError(`Please enter at least ${APP_CONFIG.MIN_ENTRY_LENGTH} characters.`);
       return;
     }
 
     const result = await analyze(text);
     if (result) {
       setAnalysisResult(result);
+      // Check if it's a fallback analysis (error case)
+      if (result.summary.includes('Offline') || result.summary.includes('offline')) {
+        showWarning('Analysis completed in offline mode.');
+      }
+    } else if (error) {
+      showError(error);
     }
-  };
+  }, [text, analyze, error, showError, showWarning]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!analysisResult) return;
 
     const entry = {
@@ -53,35 +62,54 @@ const HomeScreen = () => {
       await saveEntry(entry);
       setText('');
       setAnalysisResult(null);
+      showSuccess('Entry saved successfully! 📝');
     } catch (err) {
       console.error('Error saving entry:', err);
+      showError('An error occurred while saving the entry.');
     }
-  };
+  }, [analysisResult, text, saveEntry, showSuccess, showError]);
 
-  const sentimentColor = analysisResult
-    ? getSentimentColor(analysisResult.sentiment.type)
-    : '#E0E0E0';
+  const sentimentColor = useMemo(
+    () =>
+      analysisResult
+        ? getSentimentColor(analysisResult.sentiment.type)
+        : '#E0E0E0',
+    [analysisResult],
+  );
+
+  const isValidInput = useMemo(
+    () => text.trim().length >= APP_CONFIG.MIN_ENTRY_LENGTH,
+    [text],
+  );
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={hideToast}
+      />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <Card style={styles.inputCard}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.title}>
-              Bugün nasıl hissediyorsun?
+              How are you feeling today?
             </Text>
             <TextInput
               mode="outlined"
-              placeholder="Düşüncelerini buraya yaz..."
+              placeholder="Write your thoughts here..."
               value={text}
               onChangeText={setText}
               multiline
               numberOfLines={6}
               maxLength={APP_CONFIG.MAX_ENTRY_LENGTH}
               style={styles.input}
+              error={text.length > 0 && text.length < APP_CONFIG.MIN_ENTRY_LENGTH}
+              disabled={loading}
             />
             <Text variant="bodySmall" style={styles.charCount}>
               {text.length} / {APP_CONFIG.MAX_ENTRY_LENGTH}
@@ -89,10 +117,11 @@ const HomeScreen = () => {
             <Button
               mode="contained"
               onPress={handleAnalyze}
-              disabled={loading || text.trim().length < APP_CONFIG.MIN_ENTRY_LENGTH}
+              disabled={loading || !isValidInput}
+              loading={loading}
               style={styles.button}
             >
-              {loading ? 'Analiz Ediliyor...' : 'Analiz Et'}
+              {loading ? 'Analyzing...' : 'Analyze'}
             </Button>
           </Card.Content>
         </Card>
@@ -100,7 +129,7 @@ const HomeScreen = () => {
         {loading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" />
-            <Text style={styles.loadingText}>Yapay zeka analiz yapıyor...</Text>
+            <Text style={styles.loadingText}>AI is analyzing...</Text>
           </View>
         )}
 
@@ -108,7 +137,7 @@ const HomeScreen = () => {
           <Card style={[styles.resultCard, styles.errorCard]}>
             <Card.Content>
               <Text variant="titleMedium" style={styles.errorText}>
-                ❌ Hata
+                ❌ Error
               </Text>
               <Text>{error}</Text>
             </Card.Content>
@@ -127,7 +156,7 @@ const HomeScreen = () => {
                     {analysisResult.sentiment.label}
                   </Text>
                   <Text variant="bodySmall">
-                    Güven: %{Math.round(analysisResult.sentiment.score * 100)}
+                    Confidence: {Math.round(analysisResult.sentiment.score * 100)}%
                   </Text>
                 </View>
               </View>
@@ -135,7 +164,7 @@ const HomeScreen = () => {
               <Divider style={styles.divider} />
 
               <Text variant="titleSmall" style={styles.sectionTitle}>
-                Duygular
+                Emotions
               </Text>
               <View style={styles.emotionsContainer}>
                 {analysisResult.emotions.map((emotion, index) => (
@@ -148,7 +177,7 @@ const HomeScreen = () => {
               <Divider style={styles.divider} />
 
               <Text variant="titleSmall" style={styles.sectionTitle}>
-                Motivasyon Skoru
+                Motivation Score
               </Text>
               <View style={styles.motivationContainer}>
                 <Text variant="headlineLarge" style={styles.motivationScore}>
@@ -162,14 +191,14 @@ const HomeScreen = () => {
               <Divider style={styles.divider} />
 
               <Text variant="titleSmall" style={styles.sectionTitle}>
-                Özet
+                Summary
               </Text>
               <Text>{analysisResult.summary}</Text>
 
               <Divider style={styles.divider} />
 
               <Text variant="titleSmall" style={styles.sectionTitle}>
-                Öneri
+                Suggestion
               </Text>
               <Text>💡 {analysisResult.suggestion}</Text>
 
@@ -179,7 +208,7 @@ const HomeScreen = () => {
                 style={styles.saveButton}
                 icon="content-save"
               >
-                Kaydet
+                Save Entry
               </Button>
             </Card.Content>
           </Card>

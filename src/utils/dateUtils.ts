@@ -1,5 +1,5 @@
-export const formatDate = (timestamp: number): string => {
-  const date = new Date(timestamp);
+export const formatDate = (dateOrTimestamp: Date | number): string => {
+  const date = dateOrTimestamp instanceof Date ? dateOrTimestamp : new Date(dateOrTimestamp);
   return date.toLocaleDateString('tr-TR', {
     day: '2-digit',
     month: 'long',

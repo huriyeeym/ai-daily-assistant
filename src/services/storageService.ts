@@ -84,6 +84,28 @@ class StorageService {
       return false;
     }
   }
+
+  async saveLanguagePreference(language: 'turkish' | 'english'): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify({ language }));
+    } catch (error) {
+      console.error('Error saving language preference:', error);
+    }
+  }
+
+  async getLanguagePreference(): Promise<'turkish' | 'english'> {
+    try {
+      const data = await AsyncStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
+      if (data) {
+        const preferences = JSON.parse(data);
+        return preferences.language || 'turkish';
+      }
+      return 'turkish';
+    } catch (error) {
+      console.error('Error loading language preference:', error);
+      return 'turkish';
+    }
+  }
 }
 
 export default new StorageService();

@@ -7,18 +7,21 @@ import {
   IconButton,
   Chip,
 } from 'react-native-paper';
-import { useEntries } from '../../hooks';
+import { useEntries, useToast } from '../../hooks';
 import { DiaryEntry } from '../../models';
 import { formatDateTime, getSentimentColor, getSentimentEmoji } from '../../utils';
 
 const HistoryScreen = () => {
   const { entries, loading, deleteEntry } = useEntries();
+  const { showSuccess, showError } = useToast();
 
   const handleDelete = async (id: string) => {
     try {
       await deleteEntry(id);
+      showSuccess('Entry deleted');
     } catch (err) {
       console.error('Error deleting entry:', err);
+      showError('An error occurred while deleting the entry');
     }
   };
 
@@ -53,7 +56,7 @@ const HistoryScreen = () => {
 
           <View style={styles.footer}>
             <Chip icon="chart-line" compact>
-              Motivasyon: {Math.round(item.analysis.motivationScore)}
+              Motivation: {Math.round(item.analysis.motivationScore)}
             </Chip>
             <Chip icon="lightbulb-on" compact style={styles.suggestionChip}>
               {item.analysis.emotions[0]?.type}
@@ -77,10 +80,10 @@ const HistoryScreen = () => {
       <View style={styles.empty}>
         <Text variant="headlineMedium">📝</Text>
         <Text variant="titleLarge" style={styles.emptyText}>
-          Henüz kayıt yok
+          No entries yet
         </Text>
         <Text variant="bodyMedium" style={styles.emptySubtext}>
-          İlk günlük kaydını oluşturmak için Ana Sayfa'ya git
+          Go to the Home page to create your first diary entry
         </Text>
       </View>
     );

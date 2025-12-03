@@ -7,19 +7,22 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { store } from './src/store';
 import RootNavigator from './src/navigation/RootNavigator';
+import ErrorBoundary from './src/components/common/ErrorBoundary';
 
 function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ReduxProvider store={store}>
-        <SafeAreaProvider>
-          <PaperProvider>
-            <StatusBar barStyle="dark-content" />
-            <RootNavigator />
-          </PaperProvider>
-        </SafeAreaProvider>
-      </ReduxProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ReduxProvider store={store}>
+          <SafeAreaProvider>
+            <PaperProvider>
+              <StatusBar barStyle="dark-content" />
+              <RootNavigator />
+            </PaperProvider>
+          </SafeAreaProvider>
+        </ReduxProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
 

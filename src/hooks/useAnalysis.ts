@@ -11,11 +11,12 @@ export const useAnalysis = () => {
     setError(null);
 
     try {
+      // Auto-detect language and analyze (no manual language selection)
       const result = await aiService.analyzeSentiment({ text });
       setLoading(false);
       return result;
     } catch (err: any) {
-      const errorMessage = err.message || 'Analiz sırasında bir hata oluştu';
+      const errorMessage = err.message || 'An error occurred during analysis';
       setError(errorMessage);
       setLoading(false);
       return null;

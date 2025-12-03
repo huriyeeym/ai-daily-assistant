@@ -45,17 +45,17 @@ const RootNavigator = () => {
         <Tab.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'Günlük Girdi' }}
+          options={{ title: 'Daily Entry' }}
         />
         <Tab.Screen
           name="History"
           component={HistoryScreen}
-          options={{ title: 'Geçmiş' }}
+          options={{ title: 'History' }}
         />
         <Tab.Screen
           name="Statistics"
           component={StatisticsScreen}
-          options={{ title: 'İstatistikler' }}
+          options={{ title: 'Statistics' }}
         />
       </Tab.Navigator>
     </NavigationContainer>

@@ -11,7 +11,7 @@ export interface AnalysisResult {
 
 export interface AnalysisRequest {
   text: string;
-  language?: string;
+  language?: 'turkish' | 'english';
 }
 
 export interface ApiResponse<T> {
