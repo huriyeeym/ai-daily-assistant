@@ -1,6 +1,6 @@
 export const API_CONFIG = {
-  // Use the inference API directly (works without token for limited requests)
-  HUGGING_FACE_URL: 'https://api-inference.huggingface.co/models',
+  // Hugging Face Inference API endpoint
+  HUGGING_FACE_URL: 'https://api-inference.huggingface.co',
   // English model (specified in PDF requirements)
   ENGLISH_SENTIMENT_MODEL: 'distilbert-base-uncased-finetuned-sst-2-english',
   // Turkish model (updated to actively maintained model)

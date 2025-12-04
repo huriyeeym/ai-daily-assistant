@@ -11,6 +11,12 @@ class AIService {
     // PRIMARY: Use Hugging Face API with language-specific model
     try {
       const sentimentResponse = await this.callHuggingFace(request.text, useTurkishModel);
+      
+      // If API returns null (410 error), use fallback
+      if (!sentimentResponse) {
+        throw new Error('API endpoint deprecated, using fallback');
+      }
+      
       const apiSentiment = this.parseSentiment(sentimentResponse, useTurkishModel);
       
       // Enhance API result with keyword analysis for the selected language
@@ -275,7 +281,7 @@ class AIService {
     const model = useTurkishModel 
       ? API_CONFIG.TURKISH_SENTIMENT_MODEL 
       : API_CONFIG.ENGLISH_SENTIMENT_MODEL;
-    const endpoint = `/${model}`;
+    const endpoint = `/models/${model}`;
 
     try {
       const response = await apiClient.post(endpoint, {
@@ -304,6 +310,12 @@ class AIService {
         return await this.callHuggingFace(text, useTurkishModel, retryCount + 1);
       }
       
+      // Handle 410 - Gone (deprecated endpoint) - Silently use fallback
+      if (error.response?.status === 410) {
+        // Return null to trigger fallback mechanism silently
+        return null;
+      }
+      
       // Handle network errors
       if (!error.response && error.request) {
         throw new Error('İnternet bağlantısı yok. Lütfen bağlantınızı kontrol edin.');
@@ -316,12 +328,8 @@ class AIService {
       
       // Handle 401 - Unauthorized (API token required or endpoint issue)
       if (error.response?.status === 401) {
-        throw new Error('API authentication hatası. Türkçe analiz kullanılıyor.');
-      }
-      
-      // Handle 410 - Gone (deprecated endpoint)
-      if (error.response?.status === 410) {
-        throw new Error('API endpoint güncellenmiş. Türkçe analiz kullanılıyor.');
+        // Silently use fallback for 401 as well
+        return null;
       }
       
       throw error;

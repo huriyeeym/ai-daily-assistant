@@ -53,26 +53,28 @@ class ApiClient {
           const status = error.response.status;
           const data = error.response.data as any;
           
-          // Handle specific error cases
+          // Handle specific error cases silently
           if (status === 503) {
-            // Model is loading
-            console.log('Model is loading, will retry...');
+            // Model is loading - will retry automatically
           } else if (status === 429) {
-            // Rate limit exceeded
-            console.error('Rate limit exceeded. Please wait or use API token.');
+            // Rate limit exceeded - will use fallback
           } else if (status === 401) {
-            console.error('Invalid API token');
+            // Invalid API token - will use fallback
           } else if (status === 410) {
-            // Gone - endpoint deprecated
-            console.error('API endpoint deprecated. Please update the API URL.');
+            // Gone - endpoint deprecated - will use fallback silently
           } else {
-            console.error('API Error:', data);
+            // Other errors - log only in development
+            if (__DEV__) {
+              console.log('API Error:', data);
+            }
           }
         } else if (error.request) {
-          // Network error
-          console.error('Network Error: No response received');
+          // Network error - will use fallback
         } else {
-          console.error('Error:', error.message);
+          // Other errors - log only in development
+          if (__DEV__) {
+            console.log('Error:', error.message);
+          }
         }
         return Promise.reject(error);
       },

@@ -69,7 +69,7 @@ const AnalysisMessage: React.FC<AnalysisMessageProps> = ({ analysis, isAnalyzing
 
         {/* Suggestion */}
         <View style={styles.suggestionContainer}>
-          <Icon name="lightbulb-on" size={16} color={THEME_COLORS.primary} style={styles.bulbIcon} />
+          <Icon name="lightbulb-on" size={18} color="#60A5FA" style={styles.bulbIcon} />
           <Text style={styles.suggestion}>{analysis.suggestion}</Text>
         </View>
 
@@ -156,22 +156,24 @@ const styles = StyleSheet.create({
   },
   suggestionContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
     alignItems: 'flex-start',
-    backgroundColor: 'rgba(139, 92, 246, 0.06)',
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 4,
+    backgroundColor: 'rgba(96, 165, 250, 0.12)',
+    padding: 14,
+    borderRadius: 12,
+    marginTop: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#60A5FA',
   },
   bulbIcon: {
     marginTop: 2,
   },
   suggestion: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 14,
+    lineHeight: 20,
     color: THEME_COLORS.text,
-    fontWeight: '400',
+    fontWeight: '500',
   },
   offlineText: {
     fontSize: 9,

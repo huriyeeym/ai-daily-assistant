@@ -112,9 +112,6 @@ const AnimatedBot: React.FC<AnimatedBotProps> = ({ size = 200, isListening = fal
 
   return (
     <View style={styles.container}>
-      {/* Halo glow effect - luminous ring around circle */}
-      <View style={[styles.haloGlow, { width: size * 0.72, height: size * 0.72 }]} />
-
       {/* Glow effect when listening */}
       {isListening && (
         <Animated.View style={[styles.glow, animatedGlowStyle, { width: size * 1.5, height: size * 1.5 }]} />
@@ -191,17 +188,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  haloGlow: {
-    position: 'absolute',
-    borderRadius: 1000,
-    backgroundColor: '#E8DCFF',
-    shadowColor: '#C5B3F5',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 20,
-    elevation: 10,
-    opacity: 0.4,
   },
   glow: {
     position: 'absolute',

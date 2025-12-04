@@ -119,7 +119,8 @@ const HomeScreen = () => {
       // Remove analyzing message if analysis failed
       setMessages(prev => prev.filter(msg => msg.id !== analyzingMessageId));
 
-      if (error) {
+      // Only show error for critical failures (not for API endpoint issues that use fallback)
+      if (error && !error.includes('endpoint') && !error.includes('deprecated') && !error.includes('authentication')) {
         showError(error);
       }
     }
@@ -222,11 +223,8 @@ const HomeScreen = () => {
           ) : (
             /* Chat Mode - Small Orb in Header */
             <>
-              {/* Header with Small Orb */}
+              {/* Header */}
               <View style={styles.chatHeader}>
-                <View style={styles.chatHeaderOrb}>
-                  <AnimatedBot size={74} sentiment={currentMood} faceScale={0.5} />
-                </View>
                 <View style={styles.chatHeaderText}>
                   <Text style={styles.chatGreeting}>Hello,</Text>
                   <Text style={styles.chatSubtitle}>Let's check in with your mood.</Text>
@@ -256,7 +254,7 @@ const HomeScreen = () => {
               <View style={styles.chatInputContainer}>
                 <View style={styles.inputWrapper}>
                   <RNTextInput
-                    placeholder="Describe how you're feeling..."
+                    placeholder="Any other feelings to share?"
                     placeholderTextColor={THEME_COLORS.textSecondary}
                     value={text}
                     onChangeText={setText}
@@ -436,7 +434,7 @@ const styles = StyleSheet.create({
   chatInputContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 80 : 70,
+    paddingBottom: Platform.OS === 'ios' ? 100 : 90,
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     borderTopWidth: 0.5,
     borderTopColor: 'rgba(139, 92, 246, 0.1)',

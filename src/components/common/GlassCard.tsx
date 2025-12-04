@@ -4,7 +4,7 @@ import { THEME_COLORS } from '../../constants';
 
 interface GlassCardProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
 }
 
 const GlassCard: React.FC<GlassCardProps> = ({ children, style }) => {

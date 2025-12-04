@@ -44,3 +44,24 @@ export const isToday = (timestamp: number): boolean => {
     date.getFullYear() === today.getFullYear()
   );
 };
+
+export const isLast7Days = (timestamp: number): boolean => {
+  const date = new Date(timestamp);
+  const today = new Date();
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 7);
+  return date >= sevenDaysAgo && date <= today;
+};
+
+export const isThisMonth = (timestamp: number): boolean => {
+  const date = new Date(timestamp);
+  const today = new Date();
+  return (
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+};
+
+export const getDateRange = (startDate: Date, endDate: Date) => {
+  return { startDate, endDate };
+};

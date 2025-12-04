@@ -3,14 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import GradientBackground from '../components/common/GradientBackground';
 import { useTheme } from '../hooks';
 import { RootTabParamList } from './types';
 import { THEME_COLORS, GRADIENT_COLORS } from '../constants';
 
 import HomeScreen from '../screens/HomeScreen';
 import HistoryScreen from '../screens/HistoryScreen';
-import StatisticsScreen from '../screens/StatisticsScreen';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -30,9 +28,6 @@ const RootNavigator = () => {
                 break;
               case 'History':
                 iconName = focused ? 'book-clock' : 'book-clock-outline';
-                break;
-              case 'Statistics':
-                iconName = focused ? 'chart-arc' : 'chart-arc';
                 break;
               default:
                 iconName = 'help';
@@ -82,11 +77,6 @@ const RootNavigator = () => {
           name="History"
           component={HistoryScreen}
           options={{ title: 'History' }}
-        />
-        <Tab.Screen
-          name="Statistics"
-          component={StatisticsScreen}
-          options={{ title: 'Statistics' }}
         />
       </Tab.Navigator>
     </NavigationContainer>
